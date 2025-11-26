@@ -1,7 +1,10 @@
 ﻿CREATE DATABASE OnlineCourseDB;
 GO
+
 USE OnlineCourseDB;
 GO
+
+
 ---------------------------------------------------------
 -- 1. USERS
 ---------------------------------------------------------
@@ -12,7 +15,7 @@ CREATE TABLE Users (
     password_hash   NVARCHAR(255) NOT NULL,
     avatar_url      NVARCHAR(MAX) NULL,
     bio             NVARCHAR(MAX) NULL,
-    role            NVARCHAR(20) NOT NULL DEFAULT 'student',  
+    role            NVARCHAR(20) NOT NULL DEFAULT 'student',
     created_at      DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
     updated_at      DATETIME2 NOT NULL DEFAULT SYSDATETIME()
 );
@@ -38,7 +41,7 @@ CREATE TABLE Courses (
     updated_at      DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
 
     CONSTRAINT FK_Courses_Instructor FOREIGN KEY (instructor_id)
-        REFERENCES Users(id) ON DELETE CASCADE
+        REFERENCES Users(id) ON DELETE NO ACTION
 );
 GO
 
@@ -136,13 +139,13 @@ CREATE TABLE Reviews (
         REFERENCES Courses(id) ON DELETE CASCADE,
 
     CONSTRAINT FK_Reviews_User FOREIGN KEY (user_id)
-        REFERENCES Users(id) ON DELETE CASCADE
+        REFERENCES Users(id) ON DELETE NO ACTION
 );
 GO
 
 
 ---------------------------------------------------------
--- 9. COMMENTS
+-- 9. COMMENTS (Q&A)
 ---------------------------------------------------------
 CREATE TABLE Comments (
     id          INT IDENTITY PRIMARY KEY,
@@ -156,10 +159,10 @@ CREATE TABLE Comments (
         REFERENCES Lessons(id) ON DELETE CASCADE,
 
     CONSTRAINT FK_Comments_User FOREIGN KEY (user_id)
-        REFERENCES Users(id) ON DELETE CASCADE,
+        REFERENCES Users(id) ON DELETE NO ACTION,
 
     CONSTRAINT FK_Comments_Parent FOREIGN KEY (parent_id)
-        REFERENCES Comments(id) ON DELETE CASCADE
+        REFERENCES Comments(id) ON DELETE NO ACTION
 );
 GO
 
@@ -177,7 +180,7 @@ CREATE TABLE Orders (
     updated_at      DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
 
     CONSTRAINT FK_Orders_User FOREIGN KEY (user_id)
-        REFERENCES Users(id) ON DELETE CASCADE
+        REFERENCES Users(id) ON DELETE NO ACTION
 );
 GO
 
@@ -186,16 +189,16 @@ GO
 -- 11. ORDER_ITEMS
 ---------------------------------------------------------
 CREATE TABLE OrderItems (
-    id           INT IDENTITY PRIMARY KEY,
-    order_id     INT NOT NULL,
-    course_id    INT NOT NULL,
-    price        DECIMAL(10,2) NOT NULL,
+    id        INT IDENTITY PRIMARY KEY,
+    order_id  INT NOT NULL,
+    course_id INT NOT NULL,
+    price     DECIMAL(10,2) NOT NULL,
 
     CONSTRAINT FK_OrderItems_Order FOREIGN KEY (order_id)
         REFERENCES Orders(id) ON DELETE CASCADE,
 
     CONSTRAINT FK_OrderItems_Course FOREIGN KEY (course_id)
-        REFERENCES Courses(id) ON DELETE CASCADE
+        REFERENCES Courses(id) ON DELETE NO ACTION
 );
 GO
 
@@ -223,7 +226,7 @@ CREATE TABLE UsedCoupons (
     used_at    DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
 
     CONSTRAINT FK_UsedCoupon_User FOREIGN KEY (user_id)
-        REFERENCES Users(id) ON DELETE CASCADE,
+        REFERENCES Users(id) ON DELETE NO ACTION,
 
     CONSTRAINT FK_UsedCoupon_Coupon FOREIGN KEY (coupon_id)
         REFERENCES Coupons(id) ON DELETE CASCADE,
@@ -243,10 +246,10 @@ CREATE TABLE Enrollments (
     enrolled_at  DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
 
     CONSTRAINT FK_Enroll_User FOREIGN KEY (user_id)
-        REFERENCES Users(id) ON DELETE CASCADE,
+        REFERENCES Users(id) ON DELETE NO ACTION,
 
     CONSTRAINT FK_Enroll_Course FOREIGN KEY (course_id)
-        REFERENCES Courses(id) ON DELETE CASCADE,
+        REFERENCES Courses(id) ON DELETE NO ACTION,
 
     CONSTRAINT UQ_Enrollment UNIQUE (user_id, course_id)
 );
@@ -264,12 +267,12 @@ CREATE TABLE LessonProgress (
     completed_at  DATETIME2 NULL,
 
     CONSTRAINT FK_Progress_User FOREIGN KEY (user_id)
-        REFERENCES Users(id) ON DELETE CASCADE,
+        REFERENCES Users(id) ON DELETE NO ACTION,
 
     CONSTRAINT FK_Progress_Lesson FOREIGN KEY (lesson_id)
-        REFERENCES Lessons(id) ON DELETE CASCADE,
+        REFERENCES Lessons(id) ON DELETE NO ACTION,
 
-    CONSTRAINT UQ_Lesson_Progress UNIQUE (user_id, lesson_id)
+    CONSTRAINT UQ_Progress UNIQUE (user_id, lesson_id)
 );
 GO
 
@@ -285,10 +288,10 @@ CREATE TABLE Certificates (
     issued_at       DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
 
     CONSTRAINT FK_Cert_User FOREIGN KEY (user_id)
-        REFERENCES Users(id) ON DELETE CASCADE,
+        REFERENCES Users(id) ON DELETE NO ACTION,
 
     CONSTRAINT FK_Cert_Course FOREIGN KEY (course_id)
-        REFERENCES Courses(id) ON DELETE CASCADE,
+        REFERENCES Courses(id) ON DELETE NO ACTION,
 
     CONSTRAINT UQ_Certificate UNIQUE (user_id, course_id)
 );
