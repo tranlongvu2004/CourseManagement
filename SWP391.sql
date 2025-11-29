@@ -1,42 +1,63 @@
-﻿CREATE DATABASE OnlineCourseDB;
+﻿-- =========================================================
+-- CREATE DATABASE
+-- =========================================================
+IF DB_ID('OnlineCourseDB') IS NOT NULL
+    DROP DATABASE OnlineCourseDB;
+GO
+
+CREATE DATABASE OnlineCourseDB;
 GO
 
 USE OnlineCourseDB;
 GO
 
 
----------------------------------------------------------
+-- =========================================================
 -- 1. USERS
----------------------------------------------------------
+-- =========================================================
 CREATE TABLE Users (
     id              INT IDENTITY PRIMARY KEY,
     full_name       NVARCHAR(100) NOT NULL,
     email           NVARCHAR(100) NOT NULL UNIQUE,
     password_hash   NVARCHAR(255) NOT NULL,
-    avatar_url      NVARCHAR(MAX) NULL,
-    bio             NVARCHAR(MAX) NULL,
-    role            NVARCHAR(20) NOT NULL DEFAULT 'student',
+    avatar_url      NVARCHAR(MAX),
+    bio             NVARCHAR(MAX),
+    role_id         INT NOT NULL,
     created_at      DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
     updated_at      DATETIME2 NOT NULL DEFAULT SYSDATETIME()
 );
 GO
 
 
----------------------------------------------------------
--- 2. COURSES
----------------------------------------------------------
+-- =========================================================
+-- 2. USER ROLES
+-- =========================================================
+CREATE TABLE UserRole (
+    id INT IDENTITY PRIMARY KEY,
+    users_id INT NOT NULL,
+    roles NVARCHAR(100) NOT NULL,
+
+    CONSTRAINT FK_UserRole_User FOREIGN KEY (users_id)
+        REFERENCES Users(id) ON DELETE NO ACTION
+);
+GO
+
+
+-- =========================================================
+-- 3. COURSES
+-- =========================================================
 CREATE TABLE Courses (
     id              INT IDENTITY PRIMARY KEY,
     instructor_id   INT NOT NULL,
     title           NVARCHAR(255) NOT NULL,
     slug            NVARCHAR(255) NOT NULL UNIQUE,
-    description     NVARCHAR(MAX) NULL,
-    thumbnail       NVARCHAR(MAX) NULL,
-    level           NVARCHAR(30) NULL,
+    description     NVARCHAR(MAX),
+    thumbnail       NVARCHAR(MAX),
+    level           NVARCHAR(30),
     price           DECIMAL(10,2) NOT NULL DEFAULT 0,
-    promo_price     DECIMAL(10,2) NULL,
+    promo_price     DECIMAL(10,2),
     status          NVARCHAR(30) NOT NULL DEFAULT 'draft',
-    total_duration  INT NULL,
+    total_duration  INT,
     created_at      DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
     updated_at      DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
 
@@ -46,9 +67,9 @@ CREATE TABLE Courses (
 GO
 
 
----------------------------------------------------------
--- 3. CATEGORIES
----------------------------------------------------------
+-- =========================================================
+-- 4. CATEGORIES
+-- =========================================================
 CREATE TABLE Categories (
     id      INT IDENTITY PRIMARY KEY,
     name    NVARCHAR(100) NOT NULL,
@@ -57,9 +78,9 @@ CREATE TABLE Categories (
 GO
 
 
----------------------------------------------------------
--- 4. COURSE_CATEGORIES (Many-to-Many)
----------------------------------------------------------
+-- =========================================================
+-- 5. COURSE_CATEGORIES (MANY-TO-MANY)
+-- =========================================================
 CREATE TABLE CourseCategories (
     id          INT IDENTITY PRIMARY KEY,
     course_id   INT NOT NULL,
@@ -76,9 +97,9 @@ CREATE TABLE CourseCategories (
 GO
 
 
----------------------------------------------------------
--- 5. CHAPTERS
----------------------------------------------------------
+-- =========================================================
+-- 6. CHAPTERS
+-- =========================================================
 CREATE TABLE Chapters (
     id          INT IDENTITY PRIMARY KEY,
     course_id   INT NOT NULL,
@@ -91,15 +112,15 @@ CREATE TABLE Chapters (
 GO
 
 
----------------------------------------------------------
--- 6. LESSONS
----------------------------------------------------------
+-- =========================================================
+-- 7. LESSONS
+-- =========================================================
 CREATE TABLE Lessons (
     id          INT IDENTITY PRIMARY KEY,
     chapter_id  INT NOT NULL,
     title       NVARCHAR(255) NOT NULL,
-    video_url   NVARCHAR(MAX) NULL,
-    duration    INT NULL,
+    video_url   NVARCHAR(MAX),
+    duration    INT,
     preview     BIT NOT NULL DEFAULT 0,
     sort_order  INT NOT NULL DEFAULT 1,
 
@@ -109,9 +130,9 @@ CREATE TABLE Lessons (
 GO
 
 
----------------------------------------------------------
--- 7. LESSON_RESOURCES
----------------------------------------------------------
+-- =========================================================
+-- 8. LESSON RESOURCES
+-- =========================================================
 CREATE TABLE LessonResources (
     id             INT IDENTITY PRIMARY KEY,
     lesson_id      INT NOT NULL,
@@ -124,9 +145,9 @@ CREATE TABLE LessonResources (
 GO
 
 
----------------------------------------------------------
--- 8. REVIEWS
----------------------------------------------------------
+-- =========================================================
+-- 9. REVIEWS
+-- =========================================================
 CREATE TABLE Reviews (
     id          INT IDENTITY PRIMARY KEY,
     course_id   INT NOT NULL,
@@ -144,9 +165,9 @@ CREATE TABLE Reviews (
 GO
 
 
----------------------------------------------------------
--- 9. COMMENTS (Q&A)
----------------------------------------------------------
+-- =========================================================
+-- 10. COMMENTS (Q&A)
+-- =========================================================
 CREATE TABLE Comments (
     id          INT IDENTITY PRIMARY KEY,
     lesson_id   INT NOT NULL,
@@ -167,9 +188,9 @@ CREATE TABLE Comments (
 GO
 
 
----------------------------------------------------------
--- 10. ORDERS
----------------------------------------------------------
+-- =========================================================
+-- 11. ORDERS
+-- =========================================================
 CREATE TABLE Orders (
     id              INT IDENTITY PRIMARY KEY,
     user_id         INT NOT NULL,
@@ -185,9 +206,9 @@ CREATE TABLE Orders (
 GO
 
 
----------------------------------------------------------
--- 11. ORDER_ITEMS
----------------------------------------------------------
+-- =========================================================
+-- 12. ORDER ITEMS
+-- =========================================================
 CREATE TABLE OrderItems (
     id        INT IDENTITY PRIMARY KEY,
     order_id  INT NOT NULL,
@@ -203,22 +224,22 @@ CREATE TABLE OrderItems (
 GO
 
 
----------------------------------------------------------
--- 12. COUPONS
----------------------------------------------------------
+-- =========================================================
+-- 13. COUPONS
+-- =========================================================
 CREATE TABLE Coupons (
     id               INT IDENTITY PRIMARY KEY,
     code             NVARCHAR(50) NOT NULL UNIQUE,
     discount_percent INT NOT NULL,
-    max_uses         INT NULL,
-    expires_at       DATETIME2 NULL
+    max_uses         INT,
+    expires_at       DATETIME2
 );
 GO
 
 
----------------------------------------------------------
--- 13. USED_COUPONS
----------------------------------------------------------
+-- =========================================================
+-- 14. USED COUPONS
+-- =========================================================
 CREATE TABLE UsedCoupons (
     id         INT IDENTITY PRIMARY KEY,
     user_id    INT NOT NULL,
@@ -236,9 +257,9 @@ CREATE TABLE UsedCoupons (
 GO
 
 
----------------------------------------------------------
--- 14. ENROLLMENTS
----------------------------------------------------------
+-- =========================================================
+-- 15. ENROLLMENTS
+-- =========================================================
 CREATE TABLE Enrollments (
     id           INT IDENTITY PRIMARY KEY,
     user_id      INT NOT NULL,
@@ -256,15 +277,15 @@ CREATE TABLE Enrollments (
 GO
 
 
----------------------------------------------------------
--- 15. LESSON_PROGRESS
----------------------------------------------------------
+-- =========================================================
+-- 16. LESSON PROGRESS
+-- =========================================================
 CREATE TABLE LessonProgress (
     id            INT IDENTITY PRIMARY KEY,
     user_id       INT NOT NULL,
     lesson_id     INT NOT NULL,
     is_completed  BIT NOT NULL DEFAULT 0,
-    completed_at  DATETIME2 NULL,
+    completed_at  DATETIME2,
 
     CONSTRAINT FK_Progress_User FOREIGN KEY (user_id)
         REFERENCES Users(id) ON DELETE NO ACTION,
@@ -277,9 +298,9 @@ CREATE TABLE LessonProgress (
 GO
 
 
----------------------------------------------------------
--- 16. CERTIFICATES
----------------------------------------------------------
+-- =========================================================
+-- 17. CERTIFICATES
+-- =========================================================
 CREATE TABLE Certificates (
     id              INT IDENTITY PRIMARY KEY,
     user_id         INT NOT NULL,
